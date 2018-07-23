@@ -1,0 +1,2 @@
+# WAM
+wow addons manager
