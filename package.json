@@ -13,6 +13,7 @@
     "electron-build": "npm run build && electron-packager . --env build HelloWorld --out ./output --arch=x64 --electron-version 2.0.5 --overwrite --ignore=node_modules"
   },
   "devDependencies": {
+    "babel-plugin-import": "^1.8.0",
     "electron": "^2.0.5",
     "electron-package": "^0.1.0",
     "react-app-rewire-mobx": "^1.0.8",
@@ -20,10 +21,14 @@
     "react-scripts": "1.1.4"
   },
   "dependencies": {
+    "antd": "^3.7.1",
+    "cheerio": "^1.0.0-rc.2",
+    "electron-store": "^2.0.0",
     "mobx": "^5.0.3",
     "mobx-react": "^5.2.3",
     "react": "^16.4.1",
     "react-desktop": "^0.3.5",
-    "react-dom": "^16.4.1"
+    "react-dom": "^16.4.1",
+    "react-electron-web-view": "^2.0.1"
   }
 }

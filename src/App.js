@@ -1,25 +1,102 @@
 import React, { Component } from 'react';
-import { TitleBar } from 'react-desktop/macOs';
+// import { TitleBar } from 'react-desktop/macOs';
 import { observable } from 'mobx'
+
+import { InstalledAddons, AddonBowser } from './scenes'
+
 import { observer } from 'mobx-react'
 import './App.css';
 
+import { Layout, Menu, Breadcrumb, Icon } from 'antd';
+
+import logo from './assets/logo.jpg'
+
+const { Header, Content, Footer, Sider } = Layout;
+const SubMenu = Menu.SubMenu;
+
+// import request from 'request'
+
+const Store = window.require('electron-store');
+const electron = window.require('electron')
+
+
+
+let $
+const store = new Store();
+
 @observer
 class App extends Component {
-  @observable isFullscreen = false
+  @observable hasConfig = false
+  @observable menuKey = 'all'
+
+  componentWillMount() {
+    /* console.log('try to get content')
+
+    request('https://www.curseforge.com/wow/addons', (err, res, body)=>{
+      // console.log(body)
+      $ = cheerio.load(body)
+      console.log($($('li.project-list-item')[0]).find('span.count--download').text())
+    }) */
+
+    console.log('retrieve config data')
+    let wowPath = store.get('wow_path')
+    if (wowPath) {
+
+    } else {
+      // 
+    }
+
+    console.log(wowPath)
+  }
+
+  onCollapse = (collapsed) => {
+    console.log(collapsed);
+    this.collapsed = collapsed
+  }
+  menuClick = (menu) => {
+
+   this.menuKey = menu.key
+  }
   render() {
     return (
-      <div className="App">
-        {/* <TitleBar
-          title="test"
-          controls
-          isFullscreen={this.isFullscreen}
-          onCloseClick={() => console.log('Close window')}
-          onMinimizeClick={() => console.log('Minimize window')}
-          onMaximizeClick={() => console.log('Mazimize window')}
-          onResizeClick={() => this.isFullscreen = !this.isFullscreen}
-        /> */}
-      </div>
+      <Layout style={{ minHeight: '100vh' }}>
+        <Sider
+          // collapsible
+          // collapsed={true}
+          defaultCollapsed={true}
+          // onCollapse={this.onCollapse}
+        >
+          <div className="logo" ><img src={logo} style={{width: '100%'}}/></div>
+          <Menu theme="dark" defaultSelectedKeys={['all']} mode="inline" onClick={this.menuClick}>
+            <Menu.Item key="all">
+              <Icon type="pie-chart" />
+              <span>所有插件</span>
+            </Menu.Item>
+            <Menu.Item key="installed">
+              <Icon type="desktop" />
+              <span>我的插件</span>
+            </Menu.Item>
+          </Menu>
+        </Sider>
+
+        <Layout>
+          <Content style={{ margin: '0 16px' }}>
+            {/* <Breadcrumb style={{ margin: '16px 0' }}>
+              <Breadcrumb.Item>User</Breadcrumb.Item>
+              <Breadcrumb.Item>Bill</Breadcrumb.Item>
+            </Breadcrumb>
+            <div style={{ padding: 24, background: '#fff', minHeight: 360 }}>
+              Bill is a cat.
+            </div> */}
+
+            {this.menuKey === 'all' && <AddonBowser />}
+            {this.menuKey === 'installed' && <InstalledAddons />}
+          </Content>
+          <Footer style={{ textAlign: 'center' }}>
+            WoW addons manager@2018 by YY
+          </Footer>
+        </Layout>
+      </Layout>
     );
   }
 }
