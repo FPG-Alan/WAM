@@ -21,9 +21,9 @@ function createWindow() {
         webPreferences: {
             javascript: true,
             plugins: true,
-            nodeIntegration: false, // 不集成 Nodejs
+            nodeIntegration: true, // 不集成 Nodejs
             webSecurity: false,
-            preload: path.join(__dirname, './public/renderer.js') // 但预加载的 js 文件内仍可以使用 Nodejs 的 API
+            // preload: path.join(__dirname, './public/renderer.js') // 但预加载的 js 文件内仍可以使用 Nodejs 的 API
         }
     })
 
