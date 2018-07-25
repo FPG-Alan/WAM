@@ -21,6 +21,7 @@
     "react-scripts": "1.1.4"
   },
   "dependencies": {
+    "adm-zip": "^0.4.11",
     "antd": "^3.7.1",
     "cheerio": "^1.0.0-rc.2",
     "electron-store": "^2.0.0",

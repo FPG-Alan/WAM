@@ -22,40 +22,18 @@ const electron = window.require('electron')
 
 
 let $
-const store = new Store();
+
 
 @observer
 class App extends Component {
   @observable hasConfig = false
-  @observable menuKey = 'all'
+  @observable menuKey = 'installed'
 
-  componentWillMount() {
-    /* console.log('try to get content')
-
-    request('https://www.curseforge.com/wow/addons', (err, res, body)=>{
-      // console.log(body)
-      $ = cheerio.load(body)
-      console.log($($('li.project-list-item')[0]).find('span.count--download').text())
-    }) */
-
-    console.log('retrieve config data')
-    let wowPath = store.get('wow_path')
-    if (wowPath) {
-
-    } else {
-      // 
-    }
-
-    console.log(wowPath)
-  }
-
-  onCollapse = (collapsed) => {
-    console.log(collapsed);
-    this.collapsed = collapsed
-  }
   menuClick = (menu) => {
-
    this.menuKey = menu.key
+  }
+  externalMenuJump = (key) => {
+    this.menuKey = key
   }
   render() {
     return (
@@ -67,7 +45,7 @@ class App extends Component {
           // onCollapse={this.onCollapse}
         >
           <div className="logo" ><img src={logo} style={{width: '100%'}}/></div>
-          <Menu theme="dark" defaultSelectedKeys={['all']} mode="inline" onClick={this.menuClick}>
+          <Menu theme="dark" defaultSelectedKeys={[this.menuKey]} mode="inline" onClick={this.menuClick}>
             <Menu.Item key="all">
               <Icon type="pie-chart" />
               <span>所有插件</span>
@@ -89,12 +67,12 @@ class App extends Component {
               Bill is a cat.
             </div> */}
 
-            {this.menuKey === 'all' && <AddonBowser />}
-            {this.menuKey === 'installed' && <InstalledAddons />}
+            {this.menuKey === 'all' && <AddonBowser externalMenuJump={this.externalMenuJump}/>}
+            {this.menuKey === 'installed' && <InstalledAddons externalMenuJump={this.externalMenuJump}/>}
           </Content>
-          <Footer style={{ textAlign: 'center' }}>
+          {/* <Footer style={{ textAlign: 'center' }}>
             WoW addons manager@2018 by YY
-          </Footer>
+          </Footer> */}
         </Layout>
       </Layout>
     );
