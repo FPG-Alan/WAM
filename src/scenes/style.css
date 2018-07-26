@@ -1,0 +1,17 @@
+.ant-carousel{
+  margin-bottom: 100px;
+}
+.ant-carousel .slick-slide {
+  text-align: center;
+  height: 360px;
+  line-height: 360px;
+  background: #5376b8;
+  overflow: hidden;
+}
+.ant-carousel .slick-slide div{
+  height: 100%;
+}
+
+.ant-carousel .slick-slide img {
+  height: 100%;
+}

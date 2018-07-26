@@ -1,11 +1,13 @@
 import React, { Component, Fragment } from 'react'
-import { observable } from 'mobx'
+import { observable, toJS } from 'mobx'
 import { observer } from 'mobx-react'
 import request from 'request'
 import { Spin, TreeSelect, Input, Table, List, Avatar, Divider, Drawer, Progress, Button } from 'antd';
 import stores from '../store'
 import config from '../config'
 import { getVersion } from '../utils'
+
+import AddonDetail from './AddonDetail'
 
 const cheerio = require('cheerio')
 const shell = window.require('electron').shell
@@ -19,6 +21,7 @@ export default class AddonBowser extends Component {
     @observable loading = true
     @observable selectedCat = 'All'
     @observable detailInfovisible = false
+    @observable currentAddon = {}
 
     allCatgories = []
     nowList = []
@@ -32,11 +35,11 @@ export default class AddonBowser extends Component {
     }
     getData = (path, isSearch) => {
         this.loading = true
-        console.log(path)
+        // console.log(path)
         request(path, (err, res, body) => {
             isSearch && (this.searchState = true)
 
-            console.log(body)
+            // console.log(body)
             this.currentPath = path
             let $ = cheerio.load(body)
 
@@ -113,13 +116,13 @@ export default class AddonBowser extends Component {
             let allPage = $('li.b-pagination-item')
             if (allPage.length !== 0) {
                 totalPages = $(allPage[allPage.length - 2]).find('a').text()
-                console.log($(allPage[allPage.length - 2]).find('a'))
+                // console.log($(allPage[allPage.length - 2]).find('a'))
             }
         }
         return totalPages
     }
     handleChangeCat = (value, label, extra) => {
-        console.log(value, label, extra)
+        // console.log(value, label, extra)
         if (value.indexOf('cat__') === -1) {
             let pathArr = value.split('__')
             let path = 'https://www.curseforge.com/wow/addons'
@@ -146,6 +149,7 @@ export default class AddonBowser extends Component {
         }
     }
     handleOpenDetail = (item) => {
+        this.currentAddon = item
         this.detailInfovisible = true
     }
     handleDetailInfoClose = () => {
@@ -188,7 +192,7 @@ export default class AddonBowser extends Component {
                     }}
                     dataSource={this.nowList}
                     renderItem={item => (
-                        <AddonDetail item={item} handleOpenDetail={this.handleOpenDetail} />
+                        <AddonInfo item={item} handleOpenDetail={this.handleOpenDetail} />
                     )}
                 />
                 <Drawer
@@ -198,7 +202,7 @@ export default class AddonBowser extends Component {
                     onClose={this.handleDetailInfoClose}
                     visible={this.detailInfovisible}
                 >
-                    <p>Detail info</p>
+                    <AddonDetail addon={toJS(this.currentAddon)}/>
                 </Drawer>
 
             </Spin>
@@ -207,7 +211,7 @@ export default class AddonBowser extends Component {
 }
 
 @observer
-class AddonDetail extends Component {
+class AddonInfo extends Component {
     @observable downloading = false
     @observable version = ''
     @observable size = ''
@@ -225,9 +229,9 @@ class AddonDetail extends Component {
 
             this.stateObj.value = store.getState(this.props.item, this.version)
 
-            if (this.props.item.name === 'Deadly Boss Mods (DBM)') {
+            /* if (this.props.item.name === 'Deadly Boss Mods (DBM)') {
                 console.log(this.stateObj.value)
-            }
+            } */
         })
     }
 

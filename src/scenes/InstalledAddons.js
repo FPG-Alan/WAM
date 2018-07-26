@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 import { observable } from 'mobx'
 import { observer } from 'mobx-react'
 
