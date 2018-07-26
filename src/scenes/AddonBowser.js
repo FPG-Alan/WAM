@@ -2,8 +2,10 @@ import React, { Component, Fragment } from 'react'
 import { observable } from 'mobx'
 import { observer } from 'mobx-react'
 import request from 'request'
-import { Spin, TreeSelect, Input, List, Divider } from 'antd';
+import { Spin, TreeSelect, Input, Table, List, Avatar, Divider, Drawer, Progress, Button } from 'antd';
 import stores from '../store'
+import config from '../config'
+import { getVersion } from '../utils'
 
 const cheerio = require('cheerio')
 const shell = window.require('electron').shell
@@ -12,15 +14,12 @@ const shell = window.require('electron').shell
 const TreeNode = TreeSelect.TreeNode;
 const Search = Input.Search;
 const store = stores.addons
-
-const provider = 'https://www.curseforge.com/'
-// const WebView = require('react-electron-web-view')
 @observer
 export default class AddonBowser extends Component {
     @observable loading = true
-    // @observable updating = false
-
     @observable selectedCat = 'All'
+    @observable detailInfovisible = false
+
     allCatgories = []
     nowList = []
     totalPages = 0
@@ -37,15 +36,21 @@ export default class AddonBowser extends Component {
         request(path, (err, res, body) => {
             isSearch && (this.searchState = true)
 
+            console.log(body)
             this.currentPath = path
             let $ = cheerio.load(body)
 
             this.allCatgories.length === 0 && !isSearch && (this.allCatgories = this.getAllCat($))
-            this.nowList = this.getNowList($, isSearch)
             this.totalPages = this.getTotalPages($, isSearch)
 
 
-            this.loading = false
+            this.getNowList($, isSearch).then(data => {
+                this.nowList = data
+                this.loading = false
+            })
+
+
+
         })
     }
     getAllCat = ($) => {
@@ -73,25 +78,26 @@ export default class AddonBowser extends Component {
 
         return data
     }
-    getNowList = ($, isSearch) => {
+    async getNowList($, isSearch) {
         let result = []
 
-        $('li.project-list-item').map((index, item) => {
-            let tempItem = $(item)
-            result.push({
+        let list = $('li.project-list-item')
+
+        for (let i = 0, l = list.length; i < l; i++) {
+            let tempItem = $(list[i])
+            let itemInfo = {
                 name: tempItem.find('.list-item__details .list-item__title').text().trim(),
-                path: provider + tempItem.find('.list-item__details >a').attr('href'),
+                path: config.provider + tempItem.find('.list-item__details >a').attr('href'),
                 avatar: tempItem.find('.list-item__avatar img').attr('src'),
                 description: tempItem.find('.list-item__details .list-item__description p').text(),
                 downloadCount: tempItem.find('.count--download').text(),
                 createAt: tempItem.find('.date--created .standard-datetime').text(),
                 updateAt: tempItem.find('.date--updated .standard-datetime').text(),
-            })
+                updateTimeStamp: tempItem.find('.date--updated .standard-datetime').attr('data-epoch')
+            }
 
-            return ''
-        })
-
-
+            result.push(itemInfo)
+        }
         return result
     }
     getTotalPages = ($, isSearch = false) => {
@@ -112,7 +118,6 @@ export default class AddonBowser extends Component {
         }
         return totalPages
     }
-
     handleChangeCat = (value, label, extra) => {
         console.log(value, label, extra)
         if (value.indexOf('cat__') === -1) {
@@ -140,44 +145,14 @@ export default class AddonBowser extends Component {
             this.getData(this.currentPath.split('?')[0] + '?page=' + page, this.searchState)
         }
     }
-    handleInstall = (addon) => {
-        console.log(addon)
-        store.install(addon)
+    handleOpenDetail = (item) => {
+        this.detailInfovisible = true
     }
-    handleExternalLink = (url) => {
-        shell.openExternal(url)
+    handleDetailInfoClose = () => {
+        this.detailInfovisible = false
     }
-    render() {
-        /* const columns = [{
-            title: 'Name',
-            dataIndex: 'name',
-            key: 'name',
-            width: 150,
-            // sorter: (a, b) => a.name.length - b.name.length,
-            // sortOrder: sortedInfo.columnKey === 'name' && sortedInfo.order,
-        }, {
-            title: 'Dwonload',
-            dataIndex: 'downloadCount',
-            key: 'downloadCount',
-            width: 150,
-            // sorter: (a, b) => a.downloadCount - b.downloadCount,
-            // sortOrder: sortedInfo.columnKey === 'downloadCount' && sortedInfo.order,
-        }, {
-            title: 'Lastest Update',
-            dataIndex: 'updateAt',
-            key: 'updateAt',
-            width: 150,
-        }, {
-            title: 'Action',
-            key: 'action',
-            render: (text, record) => (
-                <span>
-                    <a href="javascript:;" onClick={this.handleInstall}>Install</a>
 
-                </span>
-            ),
-        }]; */
-        // return <WebView src="https://www.curseforge.com/wow/addons" />
+    render() {
         return <div style={{ height: '100vh', position: 'relative', display: 'flex', justifyContent: 'center' }}>
             <Spin spinning={this.loading} style={{ alignSelf: 'center' }}>
                 <TreeSelect
@@ -185,8 +160,6 @@ export default class AddonBowser extends Component {
                     style={{ width: 300 }}
                     value={this.selectedCat}
                     dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
-                    // placeholder="All catalogue"
-                    // allowClear
                     onChange={this.handleChangeCat}
                 >
                     {this.allCatgories.map(cat => {
@@ -205,9 +178,6 @@ export default class AddonBowser extends Component {
                     onSearch={this.handleSearchChange}
                     style={{ width: 200 }}
                 />
-
-                {/* <Table columns={columns} dataSource={this.nowList} pagination={{ pageSize: 20, total: this.totalPages * 20, onChange: this.handlePageChange }} scroll={{ y: 340 }} loading={this.updating} /> */}
-
                 <List
                     itemLayout="vertical"
                     size="large"
@@ -218,34 +188,98 @@ export default class AddonBowser extends Component {
                     }}
                     dataSource={this.nowList}
                     renderItem={item => (
-                        <List.Item
-                            key={item.name}
-                            actions={[<a onClick={e=>{this.handleInstall(item)}}>Install</a>]}
-                            extra={<img width={100} alt="logo" src={item.avatar || 'https://www.curseforge.com/Content/2-0-6779-25044/Skins/CurseForge/images/anvilBlack.png'} />}
-                        >
-                            <List.Item.Meta
-                                // avatar={<Avatar src={item.avatar} />}
-                                title={<a onClick={e => { this.handleExternalLink(item.path) }}>{item.name}</a>}
-                                description={<AddonDes data={item} />}
-                            />
-                            {item.description}
-                        </List.Item>
+                        <AddonDetail item={item} handleOpenDetail={this.handleOpenDetail} />
                     )}
-                />,
+                />
+                <Drawer
+                    width={'calc(100vw - 80px)'}
+                    placement="right"
+                    closable={true}
+                    onClose={this.handleDetailInfoClose}
+                    visible={this.detailInfovisible}
+                >
+                    <p>Detail info</p>
+                </Drawer>
+
             </Spin>
         </div>
     }
 }
 
+@observer
+class AddonDetail extends Component {
+    @observable downloading = false
+    @observable version = ''
+    @observable size = ''
+    @observable versionReady = false
+
+    @observable stateObj = { value: 'NEW' } //NEW, UPDATED, OOD
+
+    componentWillMount() {
+        // get version
+        getVersion(this.props.item.path + '/files').then(data => {
+            this.version = data.version
+            this.size = data.size
+
+            this.versionReady = true
+
+            this.stateObj.value = store.getState(this.props.item, this.version)
+
+            if (this.props.item.name === 'Deadly Boss Mods (DBM)') {
+                console.log(this.stateObj.value)
+            }
+        })
+    }
+
+    handleUpdateState = (addon) => {
+        this.downloading = true
+        store.install(addon, this.version, this.stateObj.value, this.updateInstallState)
+    }
+
+    handleExternalLink = (url) => {
+        shell.openExternal(url)
+    }
+    handleOpenDetail = () => {
+        this.props.handleOpenDetail(this.props.item)
+    }
+    updateInstallState = (update) => {
+        if (update.message === 'done') {
+            this.stateObj.value = store.getState(this.props.item, this.version)
+            setTimeout(() => {
+                this.downloading = false
+            }, 1000);
+        }
+    }
+    render() {
+        const { item } = this.props
+        const actions = [<Button type="primary" disabled={!this.versionReady || this.stateObj.value === 'UPDATED'} loading={this.downloading} onClick={e => { this.handleUpdateState(item) }}>{this.stateObj.value === 'NEW' ? 'Install' : (this.stateObj.value === 'UPDATED' ? 'Installed' : 'Update')}</Button>, <Button type="primary" onClick={this.handleOpenDetail}>More</Button>]
+
+
+        return <List.Item
+            key={item.name}
+            actions={actions}
+            extra={<img width={100} alt="logo" src={item.avatar || 'https://www.curseforge.com/Content/2-0-6779-25044/Skins/CurseForge/images/anvilBlack.png'} style={{position:'relative', top:'50%', transform:'translateY(-50%)'}}/>}
+        >
+            <List.Item.Meta
+                title={<a href="javascript:;" onClick={e => { this.handleExternalLink(item.path) }}>{item.name}</a>}
+                description={<AddonDes data={item} version={this.version} />}
+            />
+            {item.description}
+        </List.Item>
+    }
+}
+
 class AddonDes extends Component {
     render() {
-        const { downloadCount, createAt, updateAt } = this.props.data
-        return <Fragment>
-            <span>Download: {downloadCount}</span>
+        const { data, version } = this.props
+        return <div style={{ fontSize: '11px' }}>
+            <span>Download: {data.downloadCount}</span>
             <Divider type="vertical" />
-            <span>Update: {updateAt}</span>
+            <span>Update: {data.updateAt}</span>
             <Divider type="vertical" />
-            <span>Create: {createAt}</span>
-        </Fragment>
+            <span>Create: {data.createAt}</span>
+            <Divider type="vertical" />
+            <span>Version: {version || ''}</span>
+        </div>
     }
 }

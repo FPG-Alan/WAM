@@ -1,3 +1,3 @@
 export default {
-    wow_path: ''
+    provider: 'https://www.curseforge.com'
 }
