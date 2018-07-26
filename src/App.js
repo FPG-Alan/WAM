@@ -7,21 +7,14 @@ import { InstalledAddons, AddonBowser } from './scenes'
 import { observer } from 'mobx-react'
 import './App.css';
 
-import { Layout, Menu, Breadcrumb, Icon } from 'antd';
+import { Layout, Menu, Icon } from 'antd';
 
 import logo from './assets/logo.jpg'
 
-const { Header, Content, Footer, Sider } = Layout;
-const SubMenu = Menu.SubMenu;
+const {Content, Sider } = Layout;
 
 // import request from 'request'
 
-const Store = window.require('electron-store');
-const electron = window.require('electron')
-
-
-
-let $
 
 
 @observer
@@ -44,7 +37,7 @@ class App extends Component {
           defaultCollapsed={true}
           // onCollapse={this.onCollapse}
         >
-          <div className="logo" ><img src={logo} style={{width: '100%'}}/></div>
+          <div className="logo" ><img src={logo} style={{width: '100%'}} alt="logo"/></div>
           <Menu theme="dark" defaultSelectedKeys={[this.menuKey]} mode="inline" onClick={this.menuClick}>
             <Menu.Item key="all">
               <Icon type="pie-chart" />

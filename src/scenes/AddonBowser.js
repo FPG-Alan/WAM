@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react'
 import { observable } from 'mobx'
 import { observer } from 'mobx-react'
 import request from 'request'
-import { Spin, TreeSelect, Input, Table, List, Avatar, Divider } from 'antd';
+import { Spin, TreeSelect, Input, List, Divider } from 'antd';
 import stores from '../store'
 
 const cheerio = require('cheerio')
@@ -67,6 +67,8 @@ export default class AddonBowser extends Component {
                     path: item
                 })
             }
+
+            return ''
         })
 
         return data
@@ -74,7 +76,7 @@ export default class AddonBowser extends Component {
     getNowList = ($, isSearch) => {
         let result = []
 
-        let all = $('li.project-list-item').map((index, item) => {
+        $('li.project-list-item').map((index, item) => {
             let tempItem = $(item)
             result.push({
                 name: tempItem.find('.list-item__details .list-item__title').text().trim(),
@@ -85,6 +87,8 @@ export default class AddonBowser extends Component {
                 createAt: tempItem.find('.date--created .standard-datetime').text(),
                 updateAt: tempItem.find('.date--updated .standard-datetime').text(),
             })
+
+            return ''
         })
 
 
@@ -213,16 +217,15 @@ export default class AddonBowser extends Component {
                         total: this.totalPages * 20
                     }}
                     dataSource={this.nowList}
-                    // footer={<div><b>ant design</b> footer part</div>}
                     renderItem={item => (
                         <List.Item
                             key={item.name}
-                            actions={[<a href="javascript:;" onClick={e=>{this.handleInstall(item)}}>Install</a>]}
+                            actions={[<a onClick={e=>{this.handleInstall(item)}}>Install</a>]}
                             extra={<img width={100} alt="logo" src={item.avatar || 'https://www.curseforge.com/Content/2-0-6779-25044/Skins/CurseForge/images/anvilBlack.png'} />}
                         >
                             <List.Item.Meta
                                 // avatar={<Avatar src={item.avatar} />}
-                                title={<a href="javascript:;" onClick={e => { this.handleExternalLink(item.path) }}>{item.name}</a>}
+                                title={<a onClick={e => { this.handleExternalLink(item.path) }}>{item.name}</a>}
                                 description={<AddonDes data={item} />}
                             />
                             {item.description}

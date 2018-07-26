@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react'
+import React, { Component } from 'react'
 import { observable } from 'mobx'
 import { observer } from 'mobx-react'
 
@@ -23,7 +23,8 @@ export default class InstalledAddons extends Component {
     
 
     componentWillMount() {
-        if (this.wowPath = presist.get('wow_path')) {
+        this.wowPath = presist.get('wow_path')
+        if (this.wowPath) {
             this.configed = true
             store.setup(this.wowPath)
             this.getData()

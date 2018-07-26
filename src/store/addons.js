@@ -1,4 +1,4 @@
-import { observable, action, computed, runInAction, toJS } from "mobx"
+import { action } from "mobx"
 import request from 'request'
 const fs = window.require("fs")
 const { dialog } = window.require('electron').remote
@@ -92,8 +92,8 @@ class AddonStore {
                         })
                     }
                 })
-
             }
+            return ''
         })
 
         return
