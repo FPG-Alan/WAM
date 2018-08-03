@@ -42,7 +42,7 @@ export default class AddonDetail extends Component {
         console.log(typeof(this.screenList))
         return <Spin spinning={this.loading} style={{height: 360}}>
             {!this.loading && <Carousel >
-                {this.screenList.map((src, index) => (<div key={index}><img src={src}/></div>))}
+                {this.screenList.map((src, index) => (<div key={index}><img src={src} alt=''/></div>))}
             </Carousel>}
             {!this.loading && <div dangerouslySetInnerHTML={{ __html: this.descriptionHTML }}></div>}
         </Spin>

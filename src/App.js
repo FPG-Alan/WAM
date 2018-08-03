@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-// import { TitleBar } from 'react-desktop/macOs';
+import { TitleBar } from 'react-desktop/macOs';
 import { observable } from 'mobx'
 
 import { InstalledAddons, AddonBowser } from './scenes'
@@ -12,8 +12,6 @@ import { Layout, Menu, Icon } from 'antd';
 import logo from './assets/logo.jpg'
 
 const {Content, Sider } = Layout;
-
-// import request from 'request'
 
 
 
@@ -52,20 +50,12 @@ class App extends Component {
 
         <Layout>
           <Content style={{ margin: '0 16px' }}>
-            {/* <Breadcrumb style={{ margin: '16px 0' }}>
-              <Breadcrumb.Item>User</Breadcrumb.Item>
-              <Breadcrumb.Item>Bill</Breadcrumb.Item>
-            </Breadcrumb>
-            <div style={{ padding: 24, background: '#fff', minHeight: 360 }}>
-              Bill is a cat.
-            </div> */}
+
 
             {this.menuKey === 'all' && <AddonBowser externalMenuJump={this.externalMenuJump}/>}
             {this.menuKey === 'installed' && <InstalledAddons externalMenuJump={this.externalMenuJump}/>}
           </Content>
-          {/* <Footer style={{ textAlign: 'center' }}>
-            WoW addons manager@2018 by YY
-          </Footer> */}
+
         </Layout>
       </Layout>
     );

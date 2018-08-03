@@ -1,21 +1,25 @@
-import React, { Component, Fragment } from 'react'
+import React, { Component } from 'react'
 import { observable, toJS } from 'mobx'
 import { observer } from 'mobx-react'
 import request from 'request'
-import { Spin, TreeSelect, Input, Table, List, Avatar, Divider, Drawer, Progress, Button } from 'antd';
+import { Spin, TreeSelect, Input, List, Divider, Drawer, Button } from 'antd';
 import stores from '../store'
 import config from '../config'
 import { getVersion } from '../utils'
+import cache from '../components/cache'
 
 import AddonDetail from './AddonDetail'
+import emptyImg from '../assets/anvilBlack.png'
 
 const cheerio = require('cheerio')
 const shell = window.require('electron').shell
 
 
-const TreeNode = TreeSelect.TreeNode;
-const Search = Input.Search;
+const TreeNode = TreeSelect.TreeNode
+const Search = Input.Search
 const store = stores.addons
+
+// @cache
 @observer
 export default class AddonBowser extends Component {
     @observable loading = true
@@ -51,9 +55,6 @@ export default class AddonBowser extends Component {
                 this.nowList = data
                 this.loading = false
             })
-
-
-
         })
     }
     getAllCat = ($) => {
@@ -138,8 +139,13 @@ export default class AddonBowser extends Component {
         }
     }
     handleSearchChange = (searchStr) => {
-        let path = 'https://www.curseforge.com/wow/addons/search?search=' + searchStr
-        this.getData(path, true)
+        let path
+        if(searchStr.length === 0){
+            path = 'https://www.curseforge.com/wow/addons'
+        }else{
+            path = 'https://www.curseforge.com/wow/addons/search?search=' + searchStr
+        }
+        this.getData(path, searchStr.length>0)
     }
     handlePageChange = (page, pageSize) => {
         if (this.searchState) {
@@ -228,11 +234,10 @@ class AddonInfo extends Component {
             this.versionReady = true
 
             this.stateObj.value = store.getState(this.props.item, this.version)
-
-            /* if (this.props.item.name === 'Deadly Boss Mods (DBM)') {
-                console.log(this.stateObj.value)
-            } */
         })
+    }
+    componentDidUpdate() {
+        this.stateObj.value = store.getState(this.props.item, this.version)
     }
 
     handleUpdateState = (addon) => {
@@ -256,16 +261,23 @@ class AddonInfo extends Component {
     }
     render() {
         const { item } = this.props
-        const actions = [<Button type="primary" disabled={!this.versionReady || this.stateObj.value === 'UPDATED'} loading={this.downloading} onClick={e => { this.handleUpdateState(item) }}>{this.stateObj.value === 'NEW' ? 'Install' : (this.stateObj.value === 'UPDATED' ? 'Installed' : 'Update')}</Button>, <Button type="primary" onClick={this.handleOpenDetail}>More</Button>]
+        const actions = [
+            <Button type="primary" loading={this.downloading} 
+                disabled={!this.versionReady || this.stateObj.value === 'UPDATED'}  
+                onClick={e => { this.handleUpdateState(item) }}>
+                    {this.stateObj.value === 'NEW' ? 'Install' : (this.stateObj.value === 'UPDATED' ? 'Installed' : 'Update')}
+            </Button>, 
+            <Button type="primary" onClick={this.handleOpenDetail}>More</Button>
+        ]
 
 
         return <List.Item
             key={item.name}
             actions={actions}
-            extra={<img width={100} alt="logo" src={item.avatar || 'https://www.curseforge.com/Content/2-0-6779-25044/Skins/CurseForge/images/anvilBlack.png'} style={{position:'relative', top:'50%', transform:'translateY(-50%)'}}/>}
+            extra={<img alt="logo" src={item.avatar || emptyImg} style={{position:'relative', top:'50%', transform:'translateY(-50%)'}}/>}
         >
             <List.Item.Meta
-                title={<a href="javascript:;" onClick={e => { this.handleExternalLink(item.path) }}>{item.name}</a>}
+                title={<a onClick={e => { this.handleExternalLink(item.path) }}>{item.name}</a>}
                 description={<AddonDes data={item} version={this.version} />}
             />
             {item.description}
