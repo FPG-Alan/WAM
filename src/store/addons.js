@@ -1,7 +1,7 @@
 import { action } from "mobx"
 import request from 'request'
 // import progress from 'request-progress'
-const progress = window.require('progress-stream');
+// const progress = window.require('progress-stream');
 const fs = window.require("fs")
 const { dialog } = window.require('electron').remote
 
@@ -226,21 +226,21 @@ function downloadAddon(url, fileName, folderPath, updateState) {
         let file = fs.createWriteStream(folderPath + '/' + fileName + '.zip')
         // let total_bytes, received_bytes
 
-        let str = progress({
+        /* let str = progress({
             time: 100,
-        });
+        }); */
 
-        str.on('progress', function (progress) {
+        /* str.on('progress', function (progress) {
             updateState && updateState({
                 message: 'donwloading',
                 state: progress
             })
-        });
+        }); */
         request(url).on('response', data => {
         }).on('data', chunk => {
         }).on('end', () => {
             resolve('success')
-        }).pipe(str).pipe(file)
+        }).pipe(file)
     })
 
 }

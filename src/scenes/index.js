@@ -1,7 +1,6 @@
-import InstalledAddons from './InstalledAddons'
-import AddonBowser from './AddonBowser'
+import InstalledAddons from './InstalledAddons';
+import AddonBowser from './AddonBowser';
+// import DownloadImages from './DownloadImages'
+import ShortUrl from './ShortUrl';
 
-export {
-    InstalledAddons, 
-    AddonBowser
-}
+export { InstalledAddons, AddonBowser, ShortUrl };
